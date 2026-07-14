@@ -1,0 +1,1 @@
+window.CHARS_DATA = [];
