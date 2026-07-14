@@ -3173,10 +3173,10 @@ body.dark .minimal-slick-box, body.midnight .minimal-slick-box {
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    gap: 16px !important;
+    gap: 12px !important;
     background: var(--bg-color) !important;
-    padding: 10px 24px !important;
-    border-radius: 24px !important;
+    padding: 8px 16px !important;
+    border-radius: 20px !important;
     box-shadow: 0 2px 8px rgba(0,0,0,0.05) !important;
     border: 1px solid var(--border-color) !important;
     margin: 0 auto !important;
@@ -3185,8 +3185,8 @@ body.dark .minimal-slick-box, body.midnight .minimal-slick-box {
 }
 
 .study-session-tracker .progress-bar-wrapper {
-    width: 160px !important;
-    height: 16px !important;
+    width: 130px !important;
+    height: 14px !important;
     background: var(--border-color) !important;
     border-radius: 12px !important;
     overflow: hidden !important;
@@ -3195,7 +3195,7 @@ body.dark .minimal-slick-box, body.midnight .minimal-slick-box {
 }
 
 .study-session-tracker .tracker-counter {
-    font-size: 1.1rem !important;
+    font-size: 1rem !important;
     font-weight: 700 !important;
     color: var(--text-muted) !important;
     letter-spacing: 0.5px !important;
