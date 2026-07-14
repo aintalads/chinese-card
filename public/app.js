@@ -595,7 +595,8 @@ window.sessionStartTime = Date.now();
             chip.className = `chip ${this.state.selectedBooks.has(bId) ? 'active' : ''}`;
             chip.innerText = `Book ${bId}`;
             
-            chip.onclick = () => {
+            chip.onclick = (e) => {
+                e.stopPropagation();
                 // Update selection state
                 if (this.state.selectedBooks.has(bId)) {
                     this.state.selectedBooks.delete(bId);
@@ -603,8 +604,6 @@ window.sessionStartTime = Date.now();
                     this.state.selectedBooks.add(bId);
                 }
                 
-                // MOBILE FIX: Load content first, then refresh the UI colors
-                this.applyCourseSelection(); 
                 this.renderChips();
             };
             if (bookContainer) bookContainer.appendChild(chip);
@@ -628,17 +627,16 @@ window.sessionStartTime = Date.now();
             chip.className = `chip ${this.state.selectedLessons.has(strId) ? 'active' : ''}`;
             chip.innerText = `${lId}`;
             
-            chip.onclick = () => {
+            chip.onclick = (e) => {
+                e.stopPropagation();
                 // Update selection state
                 if (this.state.selectedLessons.has(strId)) {
                     this.state.selectedLessons.delete(strId);
+                    chip.classList.remove('active');
                 } else {
                     this.state.selectedLessons.add(strId);
+                    chip.classList.add('active');
                 }
-                
-                // MOBILE FIX: Load content first, then refresh the UI colors
-                this.applyCourseSelection();
-                this.renderChips();
             };
             if (lessonContainer) lessonContainer.appendChild(chip);
         });
@@ -2659,6 +2657,7 @@ document.addEventListener('click', (event) => {
 // GLOBAL CLICK LISTENER (FIXED)
 // =====================================================================
 document.addEventListener('click', (event) => {
+    if (!document.body.contains(event.target)) return;
     const path = event.composedPath ? event.composedPath() : [];
 
     // 1. Close Native <details> Menus (Settings, Books, Mode, Review)
