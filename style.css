@@ -3026,7 +3026,7 @@ details[open].fc-sentences-wrapper .fc-sentences-summary::after {
 
 @media (max-width: 800px) {
     .navbar {
-        padding: 10px 12px !important;
+        padding: 14px 16px !important;
     }
     .nav-left {
         display: none !important; /* Hide empty logo container on mobile to give ample room for navigation tabs */
@@ -3060,7 +3060,7 @@ details[open].fc-sentences-wrapper .fc-sentences-summary::after {
 /* Extra small devices / Mobile responsiveness for navigation tabs */
 @media (max-width: 500px) {
     .navbar {
-        padding: 8px 10px !important;
+        padding: 12px 14px !important;
     }
     .nav-navigation-tabs {
         flex: 1 1 auto !important;
@@ -3115,7 +3115,7 @@ details[open].fc-sentences-wrapper .fc-sentences-summary::after {
 
 @media (max-width: 380px) {
     .navbar {
-        padding: 6px 6px !important;
+        padding: 10px 12px !important;
     }
     .nav-navigation-tabs {
         gap: 3px !important;
@@ -3173,10 +3173,10 @@ body.dark .minimal-slick-box, body.midnight .minimal-slick-box {
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    gap: 12px !important;
+    gap: 16px !important;
     background: var(--bg-color) !important;
-    padding: 6px 16px !important;
-    border-radius: 20px !important;
+    padding: 10px 24px !important;
+    border-radius: 24px !important;
     box-shadow: 0 2px 8px rgba(0,0,0,0.05) !important;
     border: 1px solid var(--border-color) !important;
     margin: 0 auto !important;
@@ -3185,8 +3185,8 @@ body.dark .minimal-slick-box, body.midnight .minimal-slick-box {
 }
 
 .study-session-tracker .progress-bar-wrapper {
-    width: 140px !important;
-    height: 12px !important;
+    width: 160px !important;
+    height: 16px !important;
     background: var(--border-color) !important;
     border-radius: 12px !important;
     overflow: hidden !important;
@@ -3195,7 +3195,7 @@ body.dark .minimal-slick-box, body.midnight .minimal-slick-box {
 }
 
 .study-session-tracker .tracker-counter {
-    font-size: 0.9rem !important;
+    font-size: 1.1rem !important;
     font-weight: 700 !important;
     color: var(--text-muted) !important;
     letter-spacing: 0.5px !important;
@@ -3204,24 +3204,25 @@ body.dark .minimal-slick-box, body.midnight .minimal-slick-box {
 
 @media (max-width: 480px) {
     .study-session-tracker {
-        gap: 6px !important;
-        padding: 5px 10px !important;
+        gap: 12px !important;
+        padding: 8px 16px !important;
     }
     .study-session-tracker .progress-bar-wrapper {
-        width: 80px !important;
+        width: 120px !important;
+        height: 14px !important;
     }
     .study-session-tracker .tracker-counter {
-        font-size: 0.8rem !important;
+        font-size: 1rem !important;
     }
     .study-session-tracker .stat-box {
-        min-width: 32px !important;
-        height: 28px !important;
-        padding: 0 6px !important;
-        font-size: 0.95rem !important;
+        min-width: 36px !important;
+        height: 36px !important;
+        padding: 0 8px !important;
+        font-size: 1.1rem !important;
     }
     .study-session-tracker .icon-btn {
-        font-size: 0.8rem !important;
-        padding: 2px 4px !important;
+        font-size: 1rem !important;
+        padding: 4px 8px !important;
     }
 }
 
