@@ -215,8 +215,8 @@
     </div>
     
     <div style="display: flex; gap: 10px; align-items: center; margin-left: 10px;">
-        <button class="icon-btn search-trigger-btn" onclick="app.openGlobalSearch()" style="width: 38px; height: 38px; margin: 0; background: var(--bg-grad-2); color: var(--text-main); border-radius: 12px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-color); box-shadow: 0 2px 5px rgba(0,0,0,0.05);" title="Search Dictionary">
-            <svg xmlns="http://www.w3.org/2000/svg" class="search-icon-img" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width: 20px; height: 20px; color: inherit;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <button class="icon-btn search-trigger-btn" onclick="app.openGlobalSearch()" style="width: 38px; height: 38px; margin: 0; background: transparent; color: var(--text-main); border-radius: 12px; display: flex; align-items: center; justify-content: center; border: none; padding: 0;" title="Search Dictionary">
+            <img src="search_icon.png" class="search-icon-img" alt="Search" referrerPolicy="no-referrer" style="width: 100%; height: 100%; object-fit: contain;">
         </button>
         <button id="nav-toggle-btn" class="menu-toggle" onclick="toggleMobileNav()">
             ▼
@@ -636,7 +636,7 @@
         <div class="modal-content themed-modal global-search-content" onclick="event.stopPropagation()" style="height: 85vh; max-height: 800px; display: flex; flex-direction: column;">
             <div class="modal-header" style="grid-template-columns: 1fr 40px !important;">
                 <div style="grid-column: 1 / 2; position: relative; width: 100%;">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="search-icon-img" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; color: var(--text-main, #666);"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    <img src="search_icon.png" class="search-icon-img" alt="Search" referrerPolicy="no-referrer" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; object-fit: contain;">
                     <input type="text" id="global-search-input" placeholder="Search Chinese, Pinyin, or English..." autocomplete="off" style="width: 100%; padding: 12px 12px 12px 40px; border-radius: 12px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-main); font-size: 1.1rem; outline: none; box-sizing: border-box;" oninput="app.performGlobalSearch(this.value)">
                 </div>
                 <button class="close-btn" onclick="app.closeGlobalSearch()" style="margin-left: 10px;">×</button>
