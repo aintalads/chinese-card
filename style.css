@@ -480,7 +480,7 @@ details[open].control-group .dropdown-content { display: block; animation: slide
 
 /* Auto-Play Button Styles */
 .auto-play-btn { background: transparent; border: 2px solid var(--primary-color); color: var(--text-main); padding: 8px 16px; border-radius: 9999px; font-weight: bold; cursor: pointer; transition: 0.3s ease; margin-bottom: 15px; }
-.auto-play-btn.active { background: var(--primary-color); color: #ffffff; border-color: var(--primary-color); }
+.auto-play-btn.active { background: var(--primary-color); color: var(--primary-color); border-color: var(--primary-color); }
 
 .top-controls { display: flex; gap: 10px; justify-content: center; margin-bottom: 15px; flex-wrap: wrap; }
 
@@ -2255,7 +2255,7 @@ html body .extra-info-box .char-hz {
     position: fixed;
     inset: 0;
     /* Playful, rich dark blue/slate gradient */
-    background: radial-gradient(circle at 50% 40%, #1e3a8a 0%, #0f172a 100%);
+    background: var(--bg-main);
     z-index: 99999;
     display: flex;
     flex-direction: column;
@@ -2329,9 +2329,9 @@ html body .extra-info-box .char-hz {
     font-family: 'Quicksand', sans-serif;
     font-size: 3.5rem;
     font-weight: 700;
-    color: #ffffff;
+    color: var(--primary-color);
     z-index: 10;
-    text-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    text-shadow: none;
     font-variant-numeric: tabular-nums;
     transition: transform 0.1s ease;
 }
@@ -2341,7 +2341,7 @@ html body .extra-info-box .char-hz {
     font-family: 'Quicksand', sans-serif;
     font-size: 1.4rem;
     font-weight: 700;
-    color: #f8fafc;
+    color: var(--text-main);
     letter-spacing: 0.5px;
     margin: 0;
 }
@@ -2353,7 +2353,7 @@ html body .extra-info-box .char-hz {
     font-family: 'Quicksand', sans-serif;
     font-size: 0.75rem;
     font-weight: 600;
-    color: rgba(255, 255, 255, 0.3);
+    color: var(--text-muted);
     text-transform: uppercase;
     letter-spacing: 1px;
 }
@@ -2859,7 +2859,7 @@ details[open].fc-sentences-wrapper .fc-sentences-summary::after {
 /* Custom styling for Books, Mode, and Review navigation tabs always visible beside the toggle button */
 .nav-navigation-tabs {
     display: flex;
-    gap: 12px;
+    gap: 16px;
     align-items: center;
     justify-content: center;
 }
@@ -2867,7 +2867,7 @@ details[open].fc-sentences-wrapper .fc-sentences-summary::after {
 .nav-navigation-tabs .sidebar {
     display: flex !important;
     flex-direction: row !important;
-    gap: 12px !important;
+    gap: 16px !important;
     width: auto !important;
     margin-bottom: 0 !important;
     position: relative !important;
@@ -2889,16 +2889,16 @@ details[open].fc-sentences-wrapper .fc-sentences-summary::after {
 .nav-navigation-tabs .control-group summary {
     background: var(--card-bg) !important;
     border: 2px solid var(--border-color) !important;
-    border-radius: 24px !important;
+    border-radius: 28px !important;
     color: var(--text-main) !important;
-    padding: 12px 22px !important;
-    font-size: 1.1rem !important;
+    padding: 14px 28px !important;
+    font-size: 1.25rem !important;
     font-weight: bold !important;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04) !important;
     white-space: nowrap !important;
     display: inline-flex !important;
     align-items: center !important;
-    gap: 8px !important;
+    gap: 10px !important;
     cursor: pointer !important;
     transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
     -webkit-tap-highlight-color: transparent !important;
@@ -2907,7 +2907,7 @@ details[open].fc-sentences-wrapper .fc-sentences-summary::after {
 }
 
 .nav-navigation-tabs .control-group summary h3 {
-    font-size: 1.1rem !important;
+    font-size: 1.25rem !important;
     font-weight: bold !important;
     color: var(--text-main) !important;
     margin: 0 !important;
@@ -2933,17 +2933,17 @@ details[open].fc-sentences-wrapper .fc-sentences-summary::after {
 
 .nav-navigation-tabs .control-group summary .toggle-icon {
     display: inline-block !important;
-    font-size: 0.75rem !important;
+    font-size: 0.85rem !important;
     color: var(--text-muted) !important;
 }
 
 .nav-navigation-tabs .dropdown-content, 
 .nav-navigation-tabs .progress-box {
     position: absolute !important;
-    top: calc(100% + 8px) !important;
+    top: calc(100% + 12px) !important;
     left: 50% !important;
     transform: translateX(-50%) translateY(-10px) scale(0.95) !important;
-    width: 340px !important;
+    width: 360px !important;
     max-height: 60vh !important;
     overflow-y: auto !important;
     z-index: 1002 !important;
@@ -3024,6 +3024,21 @@ details[open].fc-sentences-wrapper .fc-sentences-summary::after {
     padding: 3px !important;
 }
 
+@media (min-width: 801px) {
+    .navbar {
+        margin: 20px auto !important;
+        border: 2px solid var(--border-color) !important;
+        border-radius: 24px !important;
+        max-width: 1000px !important;
+        width: calc(100% - 40px) !important;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05) !important;
+        position: sticky !important;
+        top: 20px !important;
+        background: var(--card-bg) !important;
+        padding: 18px 24px !important;
+    }
+}
+
 @media (max-width: 800px) {
     .navbar {
         padding: 14px 16px !important;
@@ -3040,12 +3055,12 @@ details[open].fc-sentences-wrapper .fc-sentences-summary::after {
         gap: 6px !important;
     }
     .nav-navigation-tabs .control-group summary {
-        padding: 10px 16px !important;
-        font-size: 0.95rem !important;
-        border-radius: 20px !important;
+        padding: 12px 18px !important;
+        font-size: 1.1rem !important;
+        border-radius: 24px !important;
     }
     .nav-navigation-tabs .control-group summary h3 {
-        font-size: 0.95rem !important;
+        font-size: 1.1rem !important;
     }
     .nav-navigation-tabs .dropdown-content, 
     .nav-navigation-tabs .progress-box {
@@ -3078,15 +3093,15 @@ details[open].fc-sentences-wrapper .fc-sentences-summary::after {
     }
     .nav-navigation-tabs .control-group summary {
         width: 100% !important;
-        padding: 8px 6px !important;
-        font-size: 0.85rem !important;
-        border-radius: 16px !important;
+        padding: 10px 8px !important;
+        font-size: 0.95rem !important;
+        border-radius: 18px !important;
         gap: 4px !important;
         justify-content: center !important;
         text-align: center !important;
     }
     .nav-navigation-tabs .control-group summary h3 {
-        font-size: 0.85rem !important;
+        font-size: 0.95rem !important;
         text-align: center !important;
         white-space: nowrap !important;
         overflow: hidden !important;
@@ -3182,6 +3197,29 @@ body.dark .minimal-slick-box, body.midnight .minimal-slick-box {
     margin: 0 auto !important;
     max-width: 100% !important;
     box-sizing: border-box !important;
+}
+
+.study-session-tracker .icon-btn {
+    width: auto !important;
+    height: auto !important;
+    padding: 6px 14px !important;
+    font-size: 0.95rem !important;
+    border-radius: 12px !important;
+    background: transparent !important;
+    border: none !important;
+    margin: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: background 0.2s ease, transform 0.1s ease !important;
+}
+
+.study-session-tracker .icon-btn:hover {
+    background: var(--border-color) !important;
+}
+
+.study-session-tracker .icon-btn:active {
+    transform: scale(0.95) !important;
 }
 
 .study-session-tracker .progress-bar-wrapper {

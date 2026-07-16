@@ -28,14 +28,15 @@
         }
     </script>
     
-    <script src="chars.js"></script>
-    <script src="new_vocab.js"></script>
-    <script src="sentences.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/hanzi-writer@3.5/dist/hanzi-writer.min.js"></script>
+    <script src="chars.js" defer></script>
+    <script src="new_vocab.js" defer></script>
+    <script src="sentences.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/hanzi-writer@3.5/dist/hanzi-writer.min.js" defer></script>
+    <script src="app.js?v=100" defer></script>
 </head>
 <body>
 
-<div id="fun-loader" class="fun-loader" style="display: none;">
+<div id="fun-loader" class="fun-loader">
     <div class="loader-content">
         
         <div class="bubble-circle-container">
@@ -89,19 +90,21 @@
         }
 
         init() {
-            // AUTOMATIC PROGRESS: It goes all the way to 100 now.
+            // PROGRESS QUICKLY
             this.simulation = setInterval(() => {
-                // Adds between 1% and 4% every tick
-                this.state.targetVal += Math.random() * 3 + 1; 
+                this.state.targetVal += 15; 
                 
-                // When it hits 100, stop the timer
-                if (this.state.targetVal >= 100) {
-                    this.state.targetVal = 100;
-                    clearInterval(this.simulation); 
+                if (this.state.targetVal >= 90) {
+                    this.state.targetVal = 90;
                 }
-            }, 100); 
+            }, 30); 
 
             requestAnimationFrame(() => this.loop());
+        }
+
+        complete() {
+            clearInterval(this.simulation);
+            this.state.targetVal = 100;
         }
 
         loop() {
@@ -150,7 +153,12 @@
         }
     }
 
-    // new FunBubbleLoader();
+    const loader = new FunBubbleLoader();
+    window.completeLoadingScreen = () => {
+        if (loader) {
+            loader.complete();
+        }
+    };
 </script>
 
 <!-- New React UI Overhaul Workspace (disabled to restore original) -->
@@ -620,8 +628,6 @@
         });
     </script>
     
-    <script src="app.js?v=100"></script>
-
     <div id="char-search-modal" class="modal-overlay" onclick="app.closeCharSearch()">
         <div class="modal-content themed-modal" onclick="event.stopPropagation()">
             <div id="char-search-header" class="modal-header">

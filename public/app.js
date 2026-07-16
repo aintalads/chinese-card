@@ -324,6 +324,18 @@ window.sessionStartTime = Date.now();
         }
 
         const q = query.trim().toLowerCase();
+
+        // Robust tone-less pinyin cleaner
+        const cleanPinyin = (str) => {
+            if (!str) return '';
+            return str.normalize('NFD')
+                      .replace(/[\u0300-\u036f]/g, "") // Strip accents/tones
+                      .toLowerCase()
+                      .replace(/v/g, 'u')              // Interchange v and u
+                      .replace(/[^a-z0-9]/g, '');      // Keep alphanumeric only
+        };
+
+        const qClean = cleanPinyin(q);
         let vocabMatches = [];
         let sentenceMatches = [];
 
@@ -333,7 +345,11 @@ window.sessionStartTime = Date.now();
                 const w = (v.word || v.simplified || '').toLowerCase();
                 const p = (v.pinyin || '').toLowerCase();
                 const m = (v.meaning || v.english || v.definition || '').toLowerCase();
-                return w.includes(q) || p.includes(q) || m.includes(q);
+
+                const pClean = cleanPinyin(v.pinyin);
+                const isPinyinMatch = qClean.length > 0 && pClean.includes(qClean);
+
+                return w.includes(q) || p.includes(q) || m.includes(q) || isPinyinMatch;
             }).slice(0, 30); // limit to 30
         }
 
@@ -343,7 +359,11 @@ window.sessionStartTime = Date.now();
                 const c = (s.chinese || s.simplified || '').toLowerCase();
                 const p = (s.pinyin || '').toLowerCase();
                 const e = (s.english || s.meaning || s.translation || '').toLowerCase();
-                return c.includes(q) || p.includes(q) || e.includes(q);
+
+                const pClean = cleanPinyin(s.pinyin);
+                const isPinyinMatch = qClean.length > 0 && pClean.includes(qClean);
+
+                return c.includes(q) || p.includes(q) || e.includes(q) || isPinyinMatch;
             }).slice(0, 10); // limit to 10
         }
 
@@ -808,39 +828,6 @@ window.sessionStartTime = Date.now();
 
         this.updateProgressUI();
         this.renderCurrentItem();
-
-        // Add swipe/touch navigation for flashcards/review mode
-        if (this.state.currentMode === 'flashcards' && this.state.isReviewMode) {
-            const flashcardView = document.getElementById('view-flashcards');
-            if (flashcardView) {
-                // Remove previous listeners if any
-                flashcardView.ontouchstart = null;
-                flashcardView.ontouchend = null;
-                let startX = 0;
-                let endX = 0;
-                    const app = this;
-                    flashcardView.ontouchstart = (e) => {
-                        if (e.touches && e.touches.length === 1) {
-                            startX = e.touches[0].clientX;
-                        }
-                    };
-                    flashcardView.ontouchend = (e) => {
-                        if (e.changedTouches && e.changedTouches.length === 1) {
-                            endX = e.changedTouches[0].clientX;
-                            const diff = endX - startX;
-                            if (Math.abs(diff) > 50) {
-                                if (diff < 0) {
-                                    // Swipe left: add to review
-                                    app.handleSwipe('left');
-                                } else {
-                                    // Swipe right: remove from review
-                                    app.handleSwipe('right');
-                                }
-                            }
-                        }
-                    };
-            }
-        }
     }
 
     renderManageReview() {
