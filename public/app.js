@@ -299,6 +299,144 @@ window.sessionStartTime = Date.now();
        // 🚀 Unlocks the background app again
     }
 
+    toggleSideDrawer(show) {
+        const drawer = document.getElementById('side-drawer');
+        const overlay = document.getElementById('side-drawer-overlay');
+        if (drawer && overlay) {
+            if (show) {
+                drawer.classList.add('active');
+                overlay.classList.add('active');
+                this.playSound('swipe-right');
+                // Auto focus drawer search input when opening
+                const input = document.getElementById('drawer-search-input');
+                if (input) setTimeout(() => input.focus(), 300);
+            } else {
+                drawer.classList.remove('active');
+                overlay.classList.remove('active');
+            }
+        }
+    }
+
+    clearDrawerSearch() {
+        const input = document.getElementById('drawer-search-input');
+        const resultsEl = document.getElementById('drawer-search-results');
+        const clearBtn = document.getElementById('drawer-search-clear');
+        if (input) input.value = '';
+        if (clearBtn) clearBtn.style.display = 'none';
+        if (resultsEl) {
+            resultsEl.classList.remove('active');
+            resultsEl.innerHTML = `<div class="search-placeholder">Type to search words & sentences...</div>`;
+        }
+    }
+
+    performDrawerSearch(query) {
+        const resultsEl = document.getElementById('drawer-search-results');
+        const clearBtn = document.getElementById('drawer-search-clear');
+        if (!query || query.trim().length === 0) {
+            if (clearBtn) clearBtn.style.display = 'none';
+            if (resultsEl) {
+                resultsEl.classList.remove('active');
+                resultsEl.innerHTML = `<div class="search-placeholder">Type to search words & sentences...</div>`;
+            }
+            return;
+        }
+
+        if (clearBtn) clearBtn.style.display = 'block';
+        if (resultsEl) resultsEl.classList.add('active');
+
+        const q = query.trim().toLowerCase();
+
+        // Robust tone-less pinyin cleaner
+        const cleanPinyin = (str) => {
+            if (!str) return '';
+            return str.normalize('NFD')
+                      .replace(/[\u0300-\u036f]/g, "") // Strip accents/tones
+                      .toLowerCase()
+                      .replace(/v/g, 'u')              // Interchange v and u
+                      .replace(/[^a-z0-9]/g, '');      // Keep alphanumeric only
+        };
+
+        const qClean = cleanPinyin(q);
+        let vocabMatches = [];
+        let sentenceMatches = [];
+
+        // Search global new_vocab
+        if (window.new_vocab) {
+            vocabMatches = window.new_vocab.filter(v => {
+                const w = (v.word || v.simplified || '').toLowerCase();
+                const p = (v.pinyin || '').toLowerCase();
+                const m = (v.meaning || v.english || v.definition || '').toLowerCase();
+
+                const pClean = cleanPinyin(v.pinyin);
+                const isPinyinMatch = qClean.length > 0 && pClean.includes(qClean);
+
+                return w.includes(q) || p.includes(q) || m.includes(q) || isPinyinMatch;
+            }).slice(0, 15); // limit to 15 inside the drawer for space
+        }
+
+        // Search global sentences
+        if (window.sentences) {
+            sentenceMatches = window.sentences.filter(s => {
+                const c = (s.chinese || s.simplified || '').toLowerCase();
+                const p = (s.pinyin || '').toLowerCase();
+                const e = (s.english || s.meaning || s.translation || '').toLowerCase();
+
+                const pClean = cleanPinyin(s.pinyin);
+                const isPinyinMatch = qClean.length > 0 && pClean.includes(qClean);
+
+                return c.includes(q) || p.includes(q) || e.includes(q) || isPinyinMatch;
+            }).slice(0, 5); // limit to 5 inside the drawer
+        }
+
+        if (vocabMatches.length === 0 && sentenceMatches.length === 0) {
+            if (resultsEl) resultsEl.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 20px; font-size: 0.9rem;">No matches found for "${q}"</div>`;
+            return;
+        }
+
+        let html = '';
+
+        if (vocabMatches.length > 0) {
+            html += `<div style="padding: 10px;">`;
+            html += `<h4 style="margin: 0 0 8px 0; color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;">Dictionary</h4>`;
+            html += `<div style="display: flex; flex-direction: column; gap: 6px;">`;
+            vocabMatches.forEach(v => {
+                const w = v.word || v.simplified || '';
+                const p = v.pinyin || '';
+                const m = v.meaning || v.english || v.definition || '';
+                
+                html += `
+                    <div class="search-result-item" onclick="app.playAudio('${w}', 'normal')" style="padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--card-bg);">
+                        <div class="search-result-word" style="font-size: 1rem;">${w}</div>
+                        <div class="search-result-py" style="font-size: 0.8rem; color: var(--primary-color);">${p}</div>
+                        <div class="search-result-en" style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">${m}</div>
+                    </div>
+                `;
+            });
+            html += `</div></div>`;
+        }
+
+        if (sentenceMatches.length > 0) {
+            html += `<div style="padding: 10px; border-top: 1px solid var(--border-color);">`;
+            html += `<h4 style="margin: 0 0 8px 0; color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;">Sentences</h4>`;
+            html += `<div style="display: flex; flex-direction: column; gap: 6px;">`;
+            sentenceMatches.forEach(s => {
+                const c = s.chinese || s.simplified || '';
+                const p = s.pinyin || '';
+                const e = s.english || s.meaning || s.translation || '';
+                html += `
+                    <div class="search-result-item" onclick="app.playAudio('${c}', 'normal')" style="padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--card-bg);">
+                        <div class="search-result-word" style="font-size: 1rem; margin-bottom: 2px;">${c}</div>
+                        <div class="search-result-py" style="font-size: 0.8rem; color: var(--primary-color);">${p}</div>
+                        <div class="search-result-en" style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">${e}</div>
+                    </div>
+                `;
+            });
+            html += `</div></div>`;
+        }
+
+        if (resultsEl) resultsEl.innerHTML = html;
+    }
+
     openGlobalSearch() {
         const modal = document.getElementById('global-search-modal');
         const input = document.getElementById('global-search-input');
@@ -625,6 +763,7 @@ window.sessionStartTime = Date.now();
                 }
                 
                 this.renderChips();
+                this.applyCourseSelection(); // Automatically apply and update lessons
             };
             if (bookContainer) bookContainer.appendChild(chip);
         });
@@ -657,6 +796,8 @@ window.sessionStartTime = Date.now();
                     this.state.selectedLessons.add(strId);
                     chip.classList.add('active');
                 }
+                this.renderChips(); // Re-render to keep styling in perfect sync
+                this.applyCourseSelection(); // Automatically apply and update lessons
             };
             if (lessonContainer) lessonContainer.appendChild(chip);
         });
@@ -677,6 +818,7 @@ window.sessionStartTime = Date.now();
             availableLessons.forEach(lId => this.state.selectedLessons.add(lId.toString())); 
         }
         this.renderChips();
+        this.applyCourseSelection(); // Automatically apply and update lessons
     }
 
     applyCourseSelection() {
