@@ -179,7 +179,7 @@ details[open] summary .toggle-icon { transform: rotate(180deg); }
 }
 
 details.control-group .dropdown-content { display: none; }
-details[open].control-group .dropdown-content { display: block; animation: slideDownFixed 0.25s ease; }
+details[open].control-group .dropdown-content { display: block; animation: slideDownFixed 0.35s ease; }
 
 @keyframes slideDownFixed { 
     from { opacity: 0; margin-top: -15px; } 
@@ -2947,7 +2947,7 @@ details[open].fc-sentences-wrapper .fc-sentences-summary::after {
     position: absolute !important;
     top: calc(100% + 12px) !important;
     left: 50% !important;
-    transform: translateX(-50%) translateY(-10px) scale(0.95) !important;
+    transform: translateX(-50%) translateY(-10px) scale(0.95);
     width: 360px !important;
     max-height: 60vh !important;
     overflow-y: auto !important;
@@ -2957,16 +2957,16 @@ details[open].fc-sentences-wrapper .fc-sentences-summary::after {
     border-radius: var(--border-radius-sm) !important;
     box-shadow: var(--shadow-md) !important;
     padding: 18px !important;
-    opacity: 0 !important;
-    pointer-events: none !important;
+    opacity: 0;
+    pointer-events: none;
     transition: opacity 0.25s cubic-bezier(0.25, 0.8, 0.25, 1), transform 0.25s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
 }
 
 /* When the details is open, show the dropdown with a beautiful scale-up fade-in transition */
 .nav-navigation-tabs details[open].control-group .dropdown-content,
 .nav-navigation-tabs details[open].control-group .progress-box {
-    opacity: 1 !important;
-    transform: translateX(-50%) translateY(0) scale(1) !important;
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
     pointer-events: auto !important;
 }
 
@@ -3071,7 +3071,7 @@ details[open].fc-sentences-wrapper .fc-sentences-summary::after {
     .nav-navigation-tabs .progress-box {
         width: calc(100vw - 32px) !important;
         left: 50% !important;
-        transform: translateX(-50%) translateY(-10px) scale(0.95) !important;
+        transform: translateX(-50%) translateY(-10px) scale(0.95);
         position: fixed !important;
         top: 60px !important;
     }

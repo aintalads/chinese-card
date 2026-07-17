@@ -346,6 +346,61 @@ buildSentencesUI(item) {
             }
         }
     }
+
+    async toggleGestureControl(enabled) {
+        this.state.gestureControlEnabled = enabled;
+        localStorage.setItem('gestureControlEnabled', enabled);
+
+        const statusEl = document.getElementById('gesture-status');
+        const videoElement = document.getElementById('gesture-video');
+        
+        if (enabled) {
+            statusEl.innerText = "Status: Loading AI Model...";
+            statusEl.style.color = "var(--primary-color)";
+            
+            if (typeof window.initGestures !== 'function') {
+                statusEl.innerText = "Status: Error loading module";
+                statusEl.style.color = "var(--error-color, #e74c3c)";
+                return;
+            }
+
+            if (!window.isGesturesReady()) {
+                const initSuccess = await window.initGestures();
+                if (!initSuccess) {
+                    statusEl.innerText = "Status: AI Model Failed";
+                    statusEl.style.color = "var(--error-color, #e74c3c)";
+                    return;
+                }
+            }
+            
+            statusEl.innerText = "Status: Requesting Camera...";
+            
+            const startSuccess = await window.startCameraAndRecognize(videoElement, (dir) => {
+                if (dir === 'left') {
+                    this.prevFlashcard();
+                } else if (dir === 'right') {
+                    this.nextFlashcard();
+                }
+            });
+
+            if (startSuccess) {
+                statusEl.innerText = "Status: Active (Fist=Left, Palm=Right)";
+                statusEl.style.color = "var(--primary-color)";
+            } else {
+                statusEl.innerText = "Status: Camera Access Denied";
+                statusEl.style.color = "var(--error-color, #e74c3c)";
+                this.state.gestureControlEnabled = false;
+                const toggleBtn = document.getElementById('gesture-control-toggle');
+                if (toggleBtn) toggleBtn.checked = false;
+            }
+        } else {
+            if (typeof window.stopWebcam === 'function') {
+                window.stopWebcam(videoElement);
+            }
+            statusEl.innerText = "Status: Off";
+            statusEl.style.color = "var(--text-muted)";
+        }
+    }
     
 
 
@@ -840,7 +895,8 @@ window.sessionStartTime = Date.now();
             outlineHidden: false, 
             isAnimating: false,
             autoAudio: localStorage.getItem('autoAudio') !== 'false',
-            voiceControlEnabled: localStorage.getItem('voiceControlEnabled') === 'true'
+            voiceControlEnabled: localStorage.getItem('voiceControlEnabled') === 'true',
+            gestureControlEnabled: localStorage.getItem('gestureControlEnabled') === 'true'
         };
         this.swipeState = { isDragging: false, startX: 0, currentX: 0, startTime: 0 };
         this.slideshowTimeout = null;
@@ -885,6 +941,14 @@ window.sessionStartTime = Date.now();
         if (this.state.voiceControlEnabled) {
             // Delay slightly to avoid browser audio issues during startup
             setTimeout(() => this.toggleVoiceControl(true), 1000);
+        }
+
+        const gestureToggle = document.getElementById('gesture-control-toggle');
+        if (gestureToggle) {
+            gestureToggle.checked = this.state.gestureControlEnabled;
+        }
+        if (this.state.gestureControlEnabled) {
+            setTimeout(() => this.toggleGestureControl(true), 1500);
         }
 
         // 🚀 2. ADD THIS HERE: Tell the premium loader that setup is complete!

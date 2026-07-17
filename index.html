@@ -31,8 +31,9 @@
     <script src="chars.js" defer></script>
     <script src="new_vocab.js" defer></script>
     <script src="sentences.js" defer></script>
+    <script type="module" src="/gestures.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/hanzi-writer@3.5/dist/hanzi-writer.min.js" defer></script>
-    <script src="app.js?v=109" defer></script>
+    <script src="app.js?v=111" defer></script>
 </head>
 <body>
 
@@ -573,19 +574,65 @@
     </div>
     
     <script>
+        function getAnimationKeyframes(d, isOpening) {
+            const inNav = d.closest('.nav-navigation-tabs');
+            if (inNav) {
+                return isOpening ? [
+                    { opacity: 0, transform: 'translateX(-50%) translateY(-10px) scale(0.95)' },
+                    { opacity: 1, transform: 'translateX(-50%) translateY(0) scale(1)' }
+                ] : [
+                    { opacity: 1, transform: 'translateX(-50%) translateY(0) scale(1)' },
+                    { opacity: 0, transform: 'translateX(-50%) translateY(-10px) scale(0.95)' }
+                ];
+            } else {
+                return isOpening ? [
+                    { opacity: 0, marginTop: '-15px' },
+                    { opacity: 1, marginTop: '0px' }
+                ] : [
+                    { opacity: 1, marginTop: '0px' },
+                    { opacity: 0, marginTop: '-15px' }
+                ];
+            }
+        }
+
         function closeDetailsWithAnimation(d) {
             if (!d.hasAttribute('open')) return;
             const content = d.querySelector('.dropdown-content, .progress-box');
             if (content) {
                 content.style.pointerEvents = 'none';
-                content.style.animation = 'slideUpFixed 0.25s ease forwards';
-                setTimeout(() => {
+                
+                const keyframes = getAnimationKeyframes(d, false);
+                const animation = content.animate(keyframes, {
+                    duration: 400,
+                    easing: 'cubic-bezier(0.25, 0.8, 0.25, 1)',
+                    fill: 'forwards'
+                });
+                
+                animation.onfinish = () => {
                     d.removeAttribute('open');
-                    content.style.animation = '';
                     content.style.pointerEvents = '';
-                }, 240);
+                    animation.cancel();
+                };
             } else {
                 d.removeAttribute('open');
+            }
+        }
+
+        function openDetailsWithAnimation(d) {
+            if (d.hasAttribute('open')) return;
+            d.setAttribute('open', '');
+            const content = d.querySelector('.dropdown-content, .progress-box');
+            if (content) {
+                const keyframes = getAnimationKeyframes(d, true);
+                const animation = content.animate(keyframes, {
+                    duration: 450,
+                    easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
+                    fill: 'forwards'
+                });
+                
+                animation.onfinish = () => {
+                    animation.cancel();
+                };
             }
         }
 
@@ -608,14 +655,17 @@
             }
         });
         
-        // Prevent default instant close on summary click to allow animation
+        // Custom toggle behavior to allow animations
         document.querySelectorAll('.sidebar details').forEach(details => {
             details.addEventListener('click', (e) => {
                 const summary = details.querySelector('summary');
                 if (e.target === summary || summary.contains(e.target)) {
+                    e.preventDefault(); // Take over the toggle
                     if (details.hasAttribute('open')) {
-                        e.preventDefault();
                         closeDetailsWithAnimation(details);
+                    } else {
+                        closeOtherDetails(details);
+                        openDetailsWithAnimation(details);
                     }
                 }
             });
@@ -636,6 +686,7 @@
     </div>
 
     <!-- Voice Control Help Modal -->
+    <video id="gesture-video" autoplay playsinline style="display: none;"></video>
     <div id="voice-help-modal" class="modal-overlay" onclick="app.closeVoiceHelpModal()">
         <div class="modal-content themed-modal" onclick="event.stopPropagation()" style="max-width: 400px; padding: 20px;">
             <div class="modal-header" style="border-bottom: none; margin-bottom: 5px;">
@@ -762,6 +813,21 @@
                 </div>
             </div>
 
+            <div class="drawer-section">
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 4px 0;">
+                    <div>
+                        <label class="drawer-label" style="margin-bottom: 2px; display: flex; align-items: center; gap: 6px;">
+                            Hand Gestures (Camera)
+                        </label>
+                        <span id="gesture-status" style="font-size: 0.72rem; color: var(--text-muted); display: block; transition: color 0.2s;">Status: Off</span>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="gesture-control-toggle" onchange="app.toggleGestureControl(this.checked)">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+            
             <!-- Feedback -->
             <div class="drawer-footer">
                 <a href="mailto:aladendmohr@gmail.com?subject=App%20Suggestions:%20Mandarin%20Flashcards" class="drawer-feedback-btn">

@@ -2,7 +2,8 @@
   "name": "Remix: Remix: Remix: Remix: chinese app 1",
   "description": "A simple and efficient tool for sharing, verifying, and discovering interesting content or information with your community instantly.",
   "requestFramePermissions": [
-    "microphone"
+    "microphone",
+    "camera"
   ],
   "majorCapabilities": [
     "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"

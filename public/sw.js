@@ -1,7 +1,27 @@
-const CACHE_NAME = 'mandarin-cache-v10';
+const CACHE_NAME = 'mandarin-cache-v14';
+
+const PRECACHE_URLS = [
+  '/',
+  '/index.html',
+  '/app.js?v=111',
+  '/style.css',
+  '/gestures.js',
+  '/vision_bundle.mjs',
+  '/gesture_recognizer.task',
+  '/wasm/vision_wasm_internal.wasm',
+  '/wasm/vision_wasm_internal.js',
+  '/wasm/vision_wasm_nosimd_internal.wasm',
+  '/wasm/vision_wasm_nosimd_internal.js',
+  '/wasm/vision_wasm_module_internal.wasm',
+  '/wasm/vision_wasm_module_internal.js'
+];
 
 self.addEventListener('install', event => {
-  self.skipWaiting();
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then(cache => cache.addAll(PRECACHE_URLS))
+      .then(() => self.skipWaiting())
+  );
 });
 
 self.addEventListener('activate', event => {
