@@ -196,86 +196,83 @@ buildSentencesUI(item) {
 
         this.recognition.onresult = (event) => {
             let transcript = '';
-            // Only process the latest results to avoid re-processing the entire continuous stream
             for (let i = event.resultIndex; i < event.results.length; ++i) {
                 transcript += event.results[i][0].transcript;
             }
             transcript = transcript.trim().toLowerCase();
             if (!transcript) return;
 
-            console.log("Voice Command Heard:", transcript);
-
-            // Pulse status
-            const statusEl = document.getElementById('voice-status');
-            if (statusEl) {
-                statusEl.innerHTML = `✨ Heard: "${transcript}"`;
-                statusEl.style.color = "var(--primary-color)";
-                clearTimeout(this.voiceStatusTimeout);
-                this.voiceStatusTimeout = setTimeout(() => {
-                    if (this.state.voiceControlEnabled) {
-                        statusEl.innerHTML = "🔴 Listening... Speak commands";
-                        statusEl.style.color = "#ef4444";
-                    }
-                }, 2000);
-            }
-
-            // Cooldown: prevent multiple actions within 1.2 seconds
             const now = Date.now();
-            if (now - this.lastVoiceCommandTime < 1200) {
+            if (now - this.lastVoiceCommandTime < 800) {
                 return; 
             }
 
-            // High robustness phonetic matching with strict word boundaries to prevent false positives (like 'know' triggering 'no' or 'now')
-            const isRight = /\b(right|write|white|yes|correct)\b/.test(transcript);
-            const isLeft = /\b(left|no|again|wrong|study)\b/.test(transcript);
-            const isFlip = /\b(flip|show|turn|reveal|tap|pinyin)\b/.test(transcript);
+            const isRight = /\b(next|right|write|white|yes|correct)\b/.test(transcript);
+            const isLeft = /\b(back|prev|left|no|again|wrong|study)\b/.test(transcript);
+            const isFlip = /\b(show|flip|turn|reveal|tap|pinyin|animate|draw)\b/.test(transcript);
             const isAudio = /\b(play|speak|audio|sound|voice|say)\b/.test(transcript);
+            const isReset = /\b(practice|reset|clear)\b/.test(transcript);
 
             let commandFired = false;
+            let commandName = "";
 
             if (this.state.currentMode === 'flashcards' && !this.state.isAnimating) {
                 if (isRight) {
                     this.handleSwipe('right');
-                    commandFired = true;
+                    commandFired = true; commandName = "Next";
                 } else if (isLeft) {
                     this.handleSwipe('left');
-                    commandFired = true;
+                    commandFired = true; commandName = "Back";
                 } else if (isFlip) {
                     this.flipCard();
-                    commandFired = true;
+                    commandFired = true; commandName = "Show";
                 } else if (isAudio) {
                     this.playCurrentFlashcardAudio();
-                    commandFired = true;
+                    commandFired = true; commandName = "Play";
                 }
             } else if (this.state.currentMode === 'sentences') {
-                if (/\b(next)\b/.test(transcript) || isRight) {
+                if (isRight) {
                     this.nextItem();
-                    commandFired = true;
-                } else if (/\b(prev|back)\b/.test(transcript) || isLeft) {
+                    commandFired = true; commandName = "Next";
+                } else if (isLeft) {
                     this.prevItem();
-                    commandFired = true;
+                    commandFired = true; commandName = "Back";
                 } else if (isFlip) {
                     this.revealSentence();
-                    commandFired = true;
+                    commandFired = true; commandName = "Show";
                 } else if (isAudio) {
                     this.playSentenceAudio();
-                    commandFired = true;
+                    commandFired = true; commandName = "Play";
                 }
             } else if (this.state.currentMode === 'writing') {
-                if (/\b(next)\b/.test(transcript) || isRight) {
+                if (isRight) {
                     this.nextItem();
-                    commandFired = true;
-                } else if (/\b(animate|draw)\b/.test(transcript) || isFlip) {
+                    commandFired = true; commandName = "Next";
+                } else if (isFlip) {
                     this.animateCharacter();
-                    commandFired = true;
-                } else if (/\b(practice|reset)\b/.test(transcript) || isLeft) {
+                    commandFired = true; commandName = "Animate";
+                } else if (isLeft || isReset) {
                     this.resetWriting();
-                    commandFired = true;
+                    commandFired = true; commandName = "Reset";
                 }
             }
 
             if (commandFired) {
+                console.log("Voice Command Fired:", commandName, "from transcript:", transcript);
                 this.lastVoiceCommandTime = now;
+                
+                const statusEl = document.getElementById('voice-status');
+                if (statusEl) {
+                    statusEl.innerHTML = `✨ Command: "${commandName}"`;
+                    statusEl.style.color = "var(--primary-color)";
+                    clearTimeout(this.voiceStatusTimeout);
+                    this.voiceStatusTimeout = setTimeout(() => {
+                        if (this.state.voiceControlEnabled) {
+                            statusEl.innerHTML = "🔴 Listening...";
+                            statusEl.style.color = "#ef4444";
+                        }
+                    }, 1500);
+                }
             }
         };
     }
