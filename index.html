@@ -32,7 +32,7 @@
     <script src="new_vocab.js" defer></script>
     <script src="sentences.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/hanzi-writer@3.5/dist/hanzi-writer.min.js" defer></script>
-    <script src="app.js?v=107" defer></script>
+    <script src="app.js?v=109" defer></script>
 </head>
 <body>
 
@@ -573,9 +573,27 @@
     </div>
     
     <script>
+        function closeDetailsWithAnimation(d) {
+            if (!d.hasAttribute('open')) return;
+            const content = d.querySelector('.dropdown-content, .progress-box');
+            if (content) {
+                content.style.pointerEvents = 'none';
+                content.style.animation = 'slideUpFixed 0.25s ease forwards';
+                setTimeout(() => {
+                    d.removeAttribute('open');
+                    content.style.animation = '';
+                    content.style.pointerEvents = '';
+                }, 240);
+            } else {
+                d.removeAttribute('open');
+            }
+        }
+
         function closeOtherDetails(clickedDetails) {
             document.querySelectorAll('.sidebar details').forEach(d => {
-                if (d !== clickedDetails) d.removeAttribute('open');
+                if (d !== clickedDetails && d.hasAttribute('open')) {
+                    closeDetailsWithAnimation(d);
+                }
             });
         }
 
@@ -585,9 +603,22 @@
             const isClickInside = event.target.closest('.control-group');
             if (!isClickInside) {
                 document.querySelectorAll('.sidebar details').forEach(d => {
-                    d.removeAttribute('open');
+                    closeDetailsWithAnimation(d);
                 });
             }
+        });
+        
+        // Prevent default instant close on summary click to allow animation
+        document.querySelectorAll('.sidebar details').forEach(details => {
+            details.addEventListener('click', (e) => {
+                const summary = details.querySelector('summary');
+                if (e.target === summary || summary.contains(e.target)) {
+                    if (details.hasAttribute('open')) {
+                        e.preventDefault();
+                        closeDetailsWithAnimation(details);
+                    }
+                }
+            });
         });
     </script>
     
@@ -601,6 +632,40 @@
                 <button class="close-btn" onclick="app.closeCharSearch()">×</button>
             </div>
             <div id="char-search-results"></div>
+        </div>
+    </div>
+
+    <!-- Voice Control Help Modal -->
+    <div id="voice-help-modal" class="modal-overlay" onclick="app.closeVoiceHelpModal()">
+        <div class="modal-content themed-modal" onclick="event.stopPropagation()" style="max-width: 400px; padding: 20px;">
+            <div class="modal-header" style="border-bottom: none; margin-bottom: 5px;">
+                <h3 style="font-size: 1.2rem; font-weight: 600; color: var(--text-color); margin: 0; display: flex; align-items: center; gap: 8px;">
+                    🎙️ Voice Commands
+                </h3>
+                <button class="close-btn" onclick="app.closeVoiceHelpModal()">×</button>
+            </div>
+            <div class="modal-body" style="font-size: 0.9rem; color: var(--text-color); line-height: 1.5;">
+                <p style="margin-bottom: 15px; color: var(--text-muted);">Speak these commands directly to navigate the app hands-free:</p>
+                
+                <div style="background: var(--surface-color); border-radius: 8px; border: 1px solid var(--border-color); overflow: hidden;">
+                    <div style="padding: 10px 15px; border-bottom: 1px solid var(--border-color); display: flex; gap: 10px;">
+                        <span style="font-weight: 600; min-width: 80px; color: var(--primary-color);">"Next"</span>
+                        <span style="color: var(--text-muted);">or "Right", "Yes", "Correct"</span>
+                    </div>
+                    <div style="padding: 10px 15px; border-bottom: 1px solid var(--border-color); display: flex; gap: 10px;">
+                        <span style="font-weight: 600; min-width: 80px; color: var(--danger-color, #ef4444);">"Back"</span>
+                        <span style="color: var(--text-muted);">or "Left", "No", "Wrong"</span>
+                    </div>
+                    <div style="padding: 10px 15px; border-bottom: 1px solid var(--border-color); display: flex; gap: 10px;">
+                        <span style="font-weight: 600; min-width: 80px; color: var(--text-color);">"Show"</span>
+                        <span style="color: var(--text-muted);">or "Flip", "Reveal", "Pinyin"</span>
+                    </div>
+                    <div style="padding: 10px 15px; display: flex; gap: 10px;">
+                        <span style="font-weight: 600; min-width: 80px; color: var(--text-color);">"Play"</span>
+                        <span style="color: var(--text-muted);">or "Speak", "Audio", "Say"</span>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -684,8 +749,11 @@
             <div class="drawer-section">
                 <div style="display: flex; justify-content: space-between; align-items: center; padding: 4px 0;">
                     <div>
-                        <label class="drawer-label" style="margin-bottom: 2px;">Voice Control (Hands-Free)</label>
-                        <span id="voice-status" style="font-size: 0.72rem; color: var(--text-muted); display: block; transition: color 0.2s;">Speak "right" or "left" to swipe</span>
+                        <label class="drawer-label" style="margin-bottom: 2px; display: flex; align-items: center; gap: 6px;">
+                            Voice Control (Hands-Free)
+                            <button class="voice-help-btn" onclick="app.showVoiceHelpModal()" aria-label="Voice Commands Help" style="width: 18px; height: 18px; display: inline-flex; justify-content: center; align-items: center; border-radius: 50%; background: var(--border-color); color: var(--text-color); font-size: 0.7rem; font-weight: bold; cursor: pointer; border: none; padding: 0; opacity: 0.7; transition: opacity 0.2s;">?</button>
+                        </label>
+                        <span id="voice-status" style="font-size: 0.72rem; color: var(--text-muted); display: block; transition: color 0.2s;">Status: Idle</span>
                     </div>
                     <label class="toggle-switch">
                         <input type="checkbox" id="voice-control-toggle" onchange="app.toggleVoiceControl(this.checked)">

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mandarin-cache-v8';
+const CACHE_NAME = 'mandarin-cache-v10';
 
 self.addEventListener('install', event => {
   self.skipWaiting();

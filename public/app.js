@@ -188,7 +188,7 @@ buildSentencesUI(item) {
             } else {
                 const statusEl = document.getElementById('voice-status');
                 if (statusEl) {
-                    statusEl.textContent = 'Speak "right" or "left" to swipe';
+                    statusEl.textContent = 'Status: Idle';
                     statusEl.style.color = "var(--text-muted)";
                 }
             }
@@ -241,11 +241,8 @@ buildSentencesUI(item) {
                     this.handleSwipe('left');
                     commandFired = true;
                 } else if (isFlip) {
-                    const fc = document.getElementById('flashcard');
-                    if (fc) {
-                        fc.click();
-                        commandFired = true;
-                    }
+                    this.flipCard();
+                    commandFired = true;
                 } else if (isAudio) {
                     this.playCurrentFlashcardAudio();
                     commandFired = true;
@@ -344,7 +341,7 @@ buildSentencesUI(item) {
                 }
             }
             if (statusEl) {
-                statusEl.textContent = 'Speak "right" or "left" to swipe';
+                statusEl.textContent = 'Status: Idle';
                 statusEl.style.color = "var(--text-muted)";
             }
         }
@@ -516,6 +513,16 @@ window.sessionStartTime = Date.now();
         const modal = document.getElementById('char-search-modal');
         if (modal) modal.classList.remove('active');
        // 🚀 Unlocks the background app again
+    }
+
+    showVoiceHelpModal() {
+        const modal = document.getElementById('voice-help-modal');
+        if (modal) modal.classList.add('active');
+    }
+
+    closeVoiceHelpModal() {
+        const modal = document.getElementById('voice-help-modal');
+        if (modal) modal.classList.remove('active');
     }
 
     toggleSideDrawer(show) {
