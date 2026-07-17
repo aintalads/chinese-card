@@ -280,13 +280,52 @@ buildSentencesUI(item) {
         this.state.voiceControlEnabled = enabled;
         localStorage.setItem('voiceControlEnabled', enabled);
 
+        const statusEl = document.getElementById('voice-status');
+
         if (enabled) {
-            this.initVoiceControl();
-            if (this.recognition) {
-                try {
-                    this.recognition.start();
-                } catch (e) {
-                    console.log("Recognition already running or failed to start:", e);
+            // Trigger explicit microphone permission prompt to ensure browser grants access
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                if (statusEl) {
+                    statusEl.textContent = "🎙️ Requesting mic permission...";
+                    statusEl.style.color = "var(--primary-color)";
+                }
+                navigator.mediaDevices.getUserMedia({ audio: true })
+                    .then((stream) => {
+                        // Stop the temporary stream tracks immediately
+                        stream.getTracks().forEach(track => track.stop());
+                        
+                        // Permission granted, initialize and start SpeechRecognition
+                        this.initVoiceControl();
+                        if (this.recognition) {
+                            try {
+                                this.recognition.start();
+                            } catch (e) {
+                                console.log("Recognition already running or failed to start:", e);
+                            }
+                        }
+                    })
+                    .catch((err) => {
+                        console.log("Microphone permission handled: not granted inside preview iframe or user denied.", err);
+                        this.state.voiceControlEnabled = false;
+                        localStorage.setItem('voiceControlEnabled', false);
+                        const toggleInput = document.getElementById('voice-control-toggle');
+                        if (toggleInput) {
+                            toggleInput.checked = false;
+                        }
+                        if (statusEl) {
+                            statusEl.innerHTML = "❌ Blocked inside preview iframe. <br><span style='font-size: 0.65rem; font-weight: bold;'>⚠️ Please open the app in a NEW TAB to use mic!</span>";
+                            statusEl.style.color = "#ef4444";
+                        }
+                    });
+            } else {
+                // Fallback to standard flow if getUserMedia is not supported but SpeechRecognition is
+                this.initVoiceControl();
+                if (this.recognition) {
+                    try {
+                        this.recognition.start();
+                    } catch (e) {
+                        console.log("Recognition already running or failed to start:", e);
+                    }
                 }
             }
         } else {
@@ -297,7 +336,6 @@ buildSentencesUI(item) {
                     console.log("Recognition stop failed:", e);
                 }
             }
-            const statusEl = document.getElementById('voice-status');
             if (statusEl) {
                 statusEl.textContent = 'Speak "right" or "left" to swipe';
                 statusEl.style.color = "var(--text-muted)";
