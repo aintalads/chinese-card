@@ -352,8 +352,25 @@ buildSentencesUI(item) {
         const videoElement = document.getElementById('gesture-video');
         
         if (enabled) {
-            statusEl.innerText = "Status: Loading AI Model...";
+            statusEl.innerText = "Status: Requesting Camera...";
             statusEl.style.color = "var(--primary-color)";
+            
+            // Request camera IMMEDIATELY before any async await tasks (fixes iOS Safari permission issues)
+            let stream = null;
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                videoElement.srcObject = stream;
+            } catch (err) {
+                console.error("Camera access denied:", err);
+                statusEl.innerText = "Status: Camera Access Denied";
+                statusEl.style.color = "var(--error-color, #e74c3c)";
+                this.state.gestureControlEnabled = false;
+                const toggleBtn = document.getElementById('gesture-control-toggle');
+                if (toggleBtn) toggleBtn.checked = false;
+                return;
+            }
+
+            statusEl.innerText = "Status: Loading AI Model...";
             
             if (typeof window.initGestures !== 'function') {
                 statusEl.innerText = "Status: Error loading module";
@@ -370,9 +387,7 @@ buildSentencesUI(item) {
                 }
             }
             
-            statusEl.innerText = "Status: Requesting Camera...";
-            
-            const startSuccess = await window.startCameraAndRecognize(videoElement, (dir) => {
+            window.startPredictingFromStream(videoElement, (dir) => {
                 if (dir === 'left') {
                     this.prevFlashcard();
                 } else if (dir === 'right') {
@@ -380,16 +395,9 @@ buildSentencesUI(item) {
                 }
             });
 
-            if (startSuccess) {
-                statusEl.innerText = "Status: Active (Fist=Left, Palm=Right)";
-                statusEl.style.color = "var(--primary-color)";
-            } else {
-                statusEl.innerText = "Status: Camera Access Denied";
-                statusEl.style.color = "var(--error-color, #e74c3c)";
-                this.state.gestureControlEnabled = false;
-                const toggleBtn = document.getElementById('gesture-control-toggle');
-                if (toggleBtn) toggleBtn.checked = false;
-            }
+            statusEl.innerText = "Status: Active (Fist=Left, Palm=Right)";
+            statusEl.style.color = "var(--primary-color)";
+            
         } else {
             if (typeof window.stopWebcam === 'function') {
                 window.stopWebcam(videoElement);
@@ -580,6 +588,29 @@ window.sessionStartTime = Date.now();
     showGestureHelpModal() {
         const modal = document.getElementById('gesture-help-modal');
         if (modal) modal.classList.add('active');
+        
+        if (typeof window.checkModelDownloadProgress === 'function') {
+            const statusText = document.getElementById('ai-model-status-text');
+            const progressBar = document.getElementById('ai-model-progress-bar');
+            if (statusText && progressBar) {
+                window.checkModelDownloadProgress((progress) => {
+                    if (progress === -1) {
+                        statusText.textContent = "Error checking status";
+                        statusText.style.color = "var(--error-color, #e74c3c)";
+                    } else {
+                        const pct = Math.round(progress);
+                        progressBar.style.width = `${pct}%`;
+                        if (pct >= 100) {
+                            statusText.textContent = "Ready (Downloaded)";
+                            statusText.style.color = "var(--primary-color)";
+                        } else {
+                            statusText.textContent = `Downloading... ${pct}%`;
+                            statusText.style.color = "var(--text-color)";
+                        }
+                    }
+                });
+            }
+        }
     }
 
     closeGestureHelpModal() {

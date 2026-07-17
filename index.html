@@ -686,7 +686,7 @@
     </div>
 
     <!-- Voice Control Help Modal -->
-    <video id="gesture-video" autoplay playsinline style="display: none;"></video>
+    <video id="gesture-video" autoplay playsinline muted style="width: 1px; height: 1px; opacity: 0; position: absolute; pointer-events: none;"></video>
     <div id="voice-help-modal" class="modal-overlay" onclick="app.closeVoiceHelpModal()">
         <div class="modal-content themed-modal" onclick="event.stopPropagation()" style="max-width: 400px; padding: 20px;">
             <div class="modal-header" style="border-bottom: none; margin-bottom: 5px;">
@@ -740,6 +740,16 @@
                     <div style="padding: 10px 15px; display: flex; gap: 10px; align-items: center;">
                         <span style="font-weight: 600; min-width: 80px; color: var(--danger-color, #ef4444);">Closed Fist</span>
                         <span style="color: var(--text-muted);">or "Thumb Down" for <b>Previous Card</b></span>
+                    </div>
+                </div>
+
+                <div id="ai-model-download-status" style="margin-top: 15px; background: var(--surface-color); border-radius: 8px; border: 1px solid var(--border-color); padding: 12px; display: flex; flex-direction: column; gap: 8px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem;">
+                        <span style="font-weight: 600; color: var(--text-color);">AI Model Download</span>
+                        <span id="ai-model-status-text" style="color: var(--text-muted);">Checking...</span>
+                    </div>
+                    <div style="width: 100%; height: 6px; background: var(--border-color); border-radius: 3px; overflow: hidden;">
+                        <div id="ai-model-progress-bar" style="width: 0%; height: 100%; background: var(--primary-color); transition: width 0.3s;"></div>
                     </div>
                 </div>
             </div>
