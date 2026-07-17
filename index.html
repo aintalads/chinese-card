@@ -720,6 +720,32 @@
         </div>
     </div>
 
+    <!-- Gesture Control Help Modal -->
+    <div id="gesture-help-modal" class="modal-overlay" onclick="app.closeGestureHelpModal()">
+        <div class="modal-content themed-modal" onclick="event.stopPropagation()" style="max-width: 400px; padding: 20px;">
+            <div class="modal-header" style="border-bottom: none; margin-bottom: 5px;">
+                <h3 style="font-size: 1.2rem; font-weight: 600; color: var(--text-color); margin: 0; display: flex; align-items: center; gap: 8px;">
+                    ✋ Gesture Commands
+                </h3>
+                <button class="close-btn" onclick="app.closeGestureHelpModal()">×</button>
+            </div>
+            <div class="modal-body" style="font-size: 0.9rem; color: var(--text-color); line-height: 1.5;">
+                <p style="margin-bottom: 15px; color: var(--text-muted);">Use hand gestures in front of the camera to navigate:</p>
+                
+                <div style="background: var(--surface-color); border-radius: 8px; border: 1px solid var(--border-color); overflow: hidden;">
+                    <div style="padding: 10px 15px; border-bottom: 1px solid var(--border-color); display: flex; gap: 10px; align-items: center;">
+                        <span style="font-weight: 600; min-width: 80px; color: var(--primary-color);">Open Palm</span>
+                        <span style="color: var(--text-muted);">or "Thumb Up" for <b>Next Card</b></span>
+                    </div>
+                    <div style="padding: 10px 15px; display: flex; gap: 10px; align-items: center;">
+                        <span style="font-weight: 600; min-width: 80px; color: var(--danger-color, #ef4444);">Closed Fist</span>
+                        <span style="color: var(--text-muted);">or "Thumb Down" for <b>Previous Card</b></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Global Search Modal -->
     <div id="global-search-modal" class="modal-overlay" onclick="app.closeGlobalSearch()">
         <div class="modal-content themed-modal global-search-content" onclick="event.stopPropagation()" style="height: 85vh; max-height: 800px; display: flex; flex-direction: column;">
@@ -818,6 +844,7 @@
                     <div>
                         <label class="drawer-label" style="margin-bottom: 2px; display: flex; align-items: center; gap: 6px;">
                             Hand Gestures (Camera)
+                            <button class="gesture-help-btn" onclick="app.showGestureHelpModal()" aria-label="Gesture Commands Help" style="width: 18px; height: 18px; display: inline-flex; justify-content: center; align-items: center; border-radius: 50%; background: var(--border-color); color: var(--text-color); font-size: 0.7rem; font-weight: bold; cursor: pointer; border: none; padding: 0; opacity: 0.7; transition: opacity 0.2s;">?</button>
                         </label>
                         <span id="gesture-status" style="font-size: 0.72rem; color: var(--text-muted); display: block; transition: color 0.2s;">Status: Off</span>
                     </div>

@@ -580,6 +580,16 @@ window.sessionStartTime = Date.now();
         if (modal) modal.classList.remove('active');
     }
 
+    showGestureHelpModal() {
+        const modal = document.getElementById('gesture-help-modal');
+        if (modal) modal.classList.add('active');
+    }
+
+    closeGestureHelpModal() {
+        const modal = document.getElementById('gesture-help-modal');
+        if (modal) modal.classList.remove('active');
+    }
+
     toggleSideDrawer(show) {
         const drawer = document.getElementById('side-drawer');
         const overlay = document.getElementById('side-drawer-overlay');
