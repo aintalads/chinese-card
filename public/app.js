@@ -513,20 +513,19 @@ window.sessionStartTime = Date.now();
         let html = '';
 
         if (vocabMatches.length > 0) {
-            html += `<div style="margin-bottom: 20px;">`;
-            html += `<h4 style="margin: 0 0 10px 0; color: var(--text-muted); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px;">Dictionary</h4>`;
-            html += `<div style="display: flex; flex-direction: column; gap: 8px;">`;
+            html += `<div style="margin-bottom: 24px;">`;
+            html += `<h4 style="margin: 0 0 12px 0; color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 700;">Dictionary Match</h4>`;
+            html += `<div class="global-search-results-list">`;
             vocabMatches.forEach(v => {
                 const w = v.word || v.simplified || '';
                 const p = v.pinyin || '';
                 const m = v.meaning || v.english || v.definition || '';
                 
-                // Clicking a search result could play the sound!
                 html += `
                     <div class="search-result-item" onclick="app.playAudio('${w}', 'normal')" style="cursor: pointer;">
                         <div class="search-result-word">${w}</div>
                         <div class="search-result-py">${p}</div>
-                        <div class="search-result-en" style="font-size: 0.9rem; color: var(--text-muted); margin-top: 4px;">${m}</div>
+                        <div class="search-result-en">${m}</div>
                     </div>
                 `;
             });
@@ -535,17 +534,17 @@ window.sessionStartTime = Date.now();
 
         if (sentenceMatches.length > 0) {
             html += `<div>`;
-            html += `<h4 style="margin: 0 0 10px 0; color: var(--text-muted); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px;">Sentences</h4>`;
-            html += `<div style="display: flex; flex-direction: column; gap: 8px;">`;
+            html += `<h4 style="margin: 0 0 12px 0; color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 700;">Example Sentences</h4>`;
+            html += `<div class="global-search-results-list">`;
             sentenceMatches.forEach(s => {
                 const c = s.chinese || s.simplified || '';
                 const p = s.pinyin || '';
                 const e = s.english || s.meaning || s.translation || '';
                 html += `
                     <div class="search-result-item" onclick="app.playAudio('${c}', 'normal')" style="cursor: pointer;">
-                        <div class="search-result-word" style="font-size: 1.2rem; margin-bottom: 5px;">${c}</div>
-                        <div class="search-result-py" style="font-size: 0.9rem;">${p}</div>
-                        <div class="search-result-en" style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">${e}</div>
+                        <div class="search-result-word" style="font-size: 1.25rem !important;">${c}</div>
+                        <div class="search-result-py">${p}</div>
+                        <div class="search-result-en">${e}</div>
                     </div>
                 `;
             });
@@ -2547,6 +2546,17 @@ const backWordEl = document.getElementById('fc-back-word');
             callback = speedOrLang;
         }
 
+        // Dynamically match user-selected speed if they've selected "slow" or "fast" on active screens
+        if (speedPref === 'normal') {
+            const fcSelect = document.getElementById('fc-speed-select');
+            const snSelect = document.getElementById('sn-speed-select');
+            if (fcSelect) {
+                speedPref = fcSelect.value;
+            } else if (snSelect) {
+                speedPref = snSelect.value;
+            }
+        }
+
         window.speechSynthesis.cancel();
 
         setTimeout(() => {
@@ -2556,9 +2566,10 @@ const backWordEl = document.getElementById('fc-back-word');
                 utterance.onerror = () => callback();
             }
 
-            let rate = 1.0;
-            if (speedPref === 'slow') rate = 0.6;
-            if (speedPref === 'fast') rate = 1.3;
+            // Safe Web Speech Synthesis rates (0.5 - 2.0 range to prevent fallback to 1.0 in iOS/Safari/Chrome)
+            let rate = 0.55; // slower, extremely clear pronunciation
+            if (speedPref === 'slow') rate = 0.50; // slow pronunciation
+            if (speedPref === 'fast') rate = 1.0;  // normal/fast pronunciation
             utterance.rate = rate;
 
             const voices = window.speechSynthesis.getVoices() || this.voices || [];
