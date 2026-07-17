@@ -146,8 +146,9 @@ buildSentencesUI(item) {
 
         this.recognition = new SpeechRecognition();
         this.recognition.continuous = true;
-        this.recognition.interimResults = false;
+        this.recognition.interimResults = true; // Enable interim for zero-delay response
         this.recognition.lang = 'en-US'; 
+        this.lastVoiceCommandTime = 0; // Initialize cooldown timer
 
         this.recognition.onstart = () => {
             console.log("Speech recognition started");
@@ -194,16 +195,23 @@ buildSentencesUI(item) {
         };
 
         this.recognition.onresult = (event) => {
-            const resultIndex = event.resultIndex;
-            const transcript = event.results[resultIndex][0].transcript.trim().toLowerCase();
-            console.log("Voice Command Recognized:", transcript);
+            let transcript = '';
+            // Only process the latest results to avoid re-processing the entire continuous stream
+            for (let i = event.resultIndex; i < event.results.length; ++i) {
+                transcript += event.results[i][0].transcript;
+            }
+            transcript = transcript.trim().toLowerCase();
+            if (!transcript) return;
+
+            console.log("Voice Command Heard:", transcript);
 
             // Pulse status
             const statusEl = document.getElementById('voice-status');
             if (statusEl) {
                 statusEl.innerHTML = `✨ Heard: "${transcript}"`;
                 statusEl.style.color = "var(--primary-color)";
-                setTimeout(() => {
+                clearTimeout(this.voiceStatusTimeout);
+                this.voiceStatusTimeout = setTimeout(() => {
                     if (this.state.voiceControlEnabled) {
                         statusEl.innerHTML = "🔴 Listening... Speak commands";
                         statusEl.style.color = "#ef4444";
@@ -211,67 +219,66 @@ buildSentencesUI(item) {
                 }, 2000);
             }
 
-            // High robustness phonetic and semantic matching
-            const isRight = transcript.includes('right') || 
-                            transcript.includes('write') || 
-                            transcript.includes('white') || 
-                            transcript.includes('yes') || 
-                            transcript.includes('know') || 
-                            transcript.includes('correct') ||
-                            transcript.includes('correctly');
+            // Cooldown: prevent multiple actions within 1.2 seconds
+            const now = Date.now();
+            if (now - this.lastVoiceCommandTime < 1200) {
+                return; 
+            }
 
-            const isLeft = transcript.includes('left') || 
-                           transcript.includes('no') || 
-                           transcript.includes('again') || 
-                           transcript.includes('wrong') || 
-                           transcript.includes('study') ||
-                           transcript.includes('incorrect');
+            // High robustness phonetic matching with strict word boundaries to prevent false positives (like 'know' triggering 'no' or 'now')
+            const isRight = /\b(right|write|white|yes|correct)\b/.test(transcript);
+            const isLeft = /\b(left|no|again|wrong|study)\b/.test(transcript);
+            const isFlip = /\b(flip|show|turn|reveal|tap|pinyin)\b/.test(transcript);
+            const isAudio = /\b(play|speak|audio|sound|voice|say)\b/.test(transcript);
 
-            const isFlip = transcript.includes('flip') || 
-                           transcript.includes('show') || 
-                           transcript.includes('turn') || 
-                           transcript.includes('reveal') || 
-                           transcript.includes('tap') ||
-                           transcript.includes('pinyin');
-
-            const isAudio = transcript.includes('play') || 
-                            transcript.includes('speak') || 
-                            transcript.includes('audio') || 
-                            transcript.includes('sound') ||
-                            transcript.includes('voice') ||
-                            transcript.includes('say');
+            let commandFired = false;
 
             if (this.state.currentMode === 'flashcards' && !this.state.isAnimating) {
                 if (isRight) {
                     this.handleSwipe('right');
+                    commandFired = true;
                 } else if (isLeft) {
                     this.handleSwipe('left');
+                    commandFired = true;
                 } else if (isFlip) {
                     const fc = document.getElementById('flashcard');
                     if (fc) {
                         fc.click();
+                        commandFired = true;
                     }
                 } else if (isAudio) {
                     this.playCurrentFlashcardAudio();
+                    commandFired = true;
                 }
             } else if (this.state.currentMode === 'sentences') {
-                if (transcript.includes('next') || isRight) {
+                if (/\b(next)\b/.test(transcript) || isRight) {
                     this.nextItem();
-                } else if (transcript.includes('prev') || transcript.includes('back') || isLeft) {
+                    commandFired = true;
+                } else if (/\b(prev|back)\b/.test(transcript) || isLeft) {
                     this.prevItem();
+                    commandFired = true;
                 } else if (isFlip) {
                     this.revealSentence();
+                    commandFired = true;
                 } else if (isAudio) {
                     this.playSentenceAudio();
+                    commandFired = true;
                 }
             } else if (this.state.currentMode === 'writing') {
-                if (transcript.includes('next') || isRight) {
+                if (/\b(next)\b/.test(transcript) || isRight) {
                     this.nextItem();
-                } else if (transcript.includes('animate') || transcript.includes('draw') || isFlip) {
+                    commandFired = true;
+                } else if (/\b(animate|draw)\b/.test(transcript) || isFlip) {
                     this.animateCharacter();
-                } else if (transcript.includes('practice') || transcript.includes('reset') || isLeft) {
+                    commandFired = true;
+                } else if (/\b(practice|reset)\b/.test(transcript) || isLeft) {
                     this.resetWriting();
+                    commandFired = true;
                 }
+            }
+
+            if (commandFired) {
+                this.lastVoiceCommandTime = now;
             }
         };
     }
