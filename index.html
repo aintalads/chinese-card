@@ -32,7 +32,7 @@
     <script src="new_vocab.js" defer></script>
     <script src="sentences.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/hanzi-writer@3.5/dist/hanzi-writer.min.js" defer></script>
-    <script src="app.js?v=102" defer></script>
+    <script src="app.js?v=104" defer></script>
 </head>
 <body>
 
@@ -677,6 +677,20 @@
                         <option value="sakura">Sakura</option>
                         <option value="midnight">Night</option>
                     </select>
+                </div>
+            </div>
+
+            <!-- Voice Control Toggle -->
+            <div class="drawer-section">
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 4px 0;">
+                    <div>
+                        <label class="drawer-label" style="margin-bottom: 2px;">Voice Control (Hands-Free)</label>
+                        <span id="voice-status" style="font-size: 0.72rem; color: var(--text-muted); display: block; transition: color 0.2s;">Speak "right" or "left" to swipe</span>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="voice-control-toggle" onchange="app.toggleVoiceControl(this.checked)">
+                        <span class="toggle-slider"></span>
+                    </label>
                 </div>
             </div>
 

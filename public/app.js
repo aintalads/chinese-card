@@ -130,6 +130,180 @@ buildSentencesUI(item) {
         // Play a tiny test sound so they know what it sounds like!
         this.playAudio("你好", "normal"); 
     }
+
+    initVoiceControl() {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition || window.mozSpeechRecognition || window.msSpeechRecognition;
+        if (!SpeechRecognition) {
+            const statusEl = document.getElementById('voice-status');
+            if (statusEl) {
+                statusEl.textContent = "Voice recognition not supported in this browser";
+                statusEl.style.color = "var(--text-muted)";
+            }
+            return;
+        }
+
+        if (this.recognition) return;
+
+        this.recognition = new SpeechRecognition();
+        this.recognition.continuous = true;
+        this.recognition.interimResults = false;
+        this.recognition.lang = 'en-US'; 
+
+        this.recognition.onstart = () => {
+            console.log("Speech recognition started");
+            const statusEl = document.getElementById('voice-status');
+            if (statusEl) {
+                statusEl.innerHTML = "🔴 Listening... Speak commands";
+                statusEl.style.color = "#ef4444";
+            }
+        };
+
+        this.recognition.onerror = (event) => {
+            console.error("Speech recognition error:", event.error);
+            const statusEl = document.getElementById('voice-status');
+            if (statusEl) {
+                if (event.error === 'not-allowed') {
+                    statusEl.textContent = "Mic permission blocked. Enable in settings.";
+                } else if (event.error === 'no-speech') {
+                    // This is normal and happens on silence, onend will auto-restart it
+                    statusEl.innerHTML = "🔴 Listening... Speak commands";
+                    statusEl.style.color = "#ef4444";
+                } else {
+                    statusEl.textContent = "Status: Idle";
+                }
+                statusEl.style.color = "var(--text-muted)";
+            }
+        };
+
+        this.recognition.onend = () => {
+            console.log("Speech recognition ended");
+            // Auto-restart if still enabled
+            if (this.state.voiceControlEnabled) {
+                try {
+                    this.recognition.start();
+                } catch (e) {
+                    console.error("Failed to auto-restart speech recognition:", e);
+                }
+            } else {
+                const statusEl = document.getElementById('voice-status');
+                if (statusEl) {
+                    statusEl.textContent = 'Speak "right" or "left" to swipe';
+                    statusEl.style.color = "var(--text-muted)";
+                }
+            }
+        };
+
+        this.recognition.onresult = (event) => {
+            const resultIndex = event.resultIndex;
+            const transcript = event.results[resultIndex][0].transcript.trim().toLowerCase();
+            console.log("Voice Command Recognized:", transcript);
+
+            // Pulse status
+            const statusEl = document.getElementById('voice-status');
+            if (statusEl) {
+                statusEl.innerHTML = `✨ Heard: "${transcript}"`;
+                statusEl.style.color = "var(--primary-color)";
+                setTimeout(() => {
+                    if (this.state.voiceControlEnabled) {
+                        statusEl.innerHTML = "🔴 Listening... Speak commands";
+                        statusEl.style.color = "#ef4444";
+                    }
+                }, 2000);
+            }
+
+            // High robustness phonetic and semantic matching
+            const isRight = transcript.includes('right') || 
+                            transcript.includes('write') || 
+                            transcript.includes('white') || 
+                            transcript.includes('yes') || 
+                            transcript.includes('know') || 
+                            transcript.includes('correct') ||
+                            transcript.includes('correctly');
+
+            const isLeft = transcript.includes('left') || 
+                           transcript.includes('no') || 
+                           transcript.includes('again') || 
+                           transcript.includes('wrong') || 
+                           transcript.includes('study') ||
+                           transcript.includes('incorrect');
+
+            const isFlip = transcript.includes('flip') || 
+                           transcript.includes('show') || 
+                           transcript.includes('turn') || 
+                           transcript.includes('reveal') || 
+                           transcript.includes('tap') ||
+                           transcript.includes('pinyin');
+
+            const isAudio = transcript.includes('play') || 
+                            transcript.includes('speak') || 
+                            transcript.includes('audio') || 
+                            transcript.includes('sound') ||
+                            transcript.includes('voice') ||
+                            transcript.includes('say');
+
+            if (this.state.currentMode === 'flashcards' && !this.state.isAnimating) {
+                if (isRight) {
+                    this.handleSwipe('right');
+                } else if (isLeft) {
+                    this.handleSwipe('left');
+                } else if (isFlip) {
+                    const fc = document.getElementById('flashcard');
+                    if (fc) {
+                        fc.click();
+                    }
+                } else if (isAudio) {
+                    this.playCurrentFlashcardAudio();
+                }
+            } else if (this.state.currentMode === 'sentences') {
+                if (transcript.includes('next') || isRight) {
+                    this.nextItem();
+                } else if (transcript.includes('prev') || transcript.includes('back') || isLeft) {
+                    this.prevItem();
+                } else if (isFlip) {
+                    this.revealSentence();
+                } else if (isAudio) {
+                    this.playSentenceAudio();
+                }
+            } else if (this.state.currentMode === 'writing') {
+                if (transcript.includes('next') || isRight) {
+                    this.nextItem();
+                } else if (transcript.includes('animate') || transcript.includes('draw') || isFlip) {
+                    this.animateCharacter();
+                } else if (transcript.includes('practice') || transcript.includes('reset') || isLeft) {
+                    this.resetWriting();
+                }
+            }
+        };
+    }
+
+    toggleVoiceControl(enabled) {
+        this.state.voiceControlEnabled = enabled;
+        localStorage.setItem('voiceControlEnabled', enabled);
+
+        if (enabled) {
+            this.initVoiceControl();
+            if (this.recognition) {
+                try {
+                    this.recognition.start();
+                } catch (e) {
+                    console.log("Recognition already running or failed to start:", e);
+                }
+            }
+        } else {
+            if (this.recognition) {
+                try {
+                    this.recognition.stop();
+                } catch (e) {
+                    console.log("Recognition stop failed:", e);
+                }
+            }
+            const statusEl = document.getElementById('voice-status');
+            if (statusEl) {
+                statusEl.textContent = 'Speak "right" or "left" to swipe';
+                statusEl.style.color = "var(--text-muted)";
+            }
+        }
+    }
     
 
 
@@ -270,7 +444,7 @@ window.sessionStartTime = Date.now();
                     }).join('');
 
                     html += `
-                        <div class="search-result-item">
+                        <div class="search-result-item" onclick="app.playAudio('${word}', 'normal')" style="cursor: pointer;">
                             <div class="search-result-word">${highlightedWord}</div>
                             <div class="search-result-py">${py}</div>
                             <div class="search-result-en">${en}</div>
@@ -613,7 +787,8 @@ window.sessionStartTime = Date.now();
             isSentenceAutoPlaying: false, 
             outlineHidden: false, 
             isAnimating: false,
-            autoAudio: localStorage.getItem('autoAudio') !== 'false' 
+            autoAudio: localStorage.getItem('autoAudio') !== 'false',
+            voiceControlEnabled: localStorage.getItem('voiceControlEnabled') === 'true'
         };
         this.swipeState = { isDragging: false, startX: 0, currentX: 0, startTime: 0 };
         this.slideshowTimeout = null;
@@ -649,6 +824,17 @@ window.sessionStartTime = Date.now();
         this.renderChips();
         this.applyCourseSelection(); 
         this.updateAutoAudioUI();
+
+        // Restore voice control checkbox state and start listening if enabled
+        const voiceToggle = document.getElementById('voice-control-toggle');
+        if (voiceToggle) {
+            voiceToggle.checked = this.state.voiceControlEnabled;
+        }
+        if (this.state.voiceControlEnabled) {
+            // Delay slightly to avoid browser audio issues during startup
+            setTimeout(() => this.toggleVoiceControl(true), 1000);
+        }
+
         // 🚀 2. ADD THIS HERE: Tell the premium loader that setup is complete!
         if (typeof window.completeLoadingScreen === 'function') {
             window.completeLoadingScreen();
@@ -2566,10 +2752,10 @@ const backWordEl = document.getElementById('fc-back-word');
                 utterance.onerror = () => callback();
             }
 
-            // Safe Web Speech Synthesis rates (0.5 - 2.0 range to prevent fallback to 1.0 in iOS/Safari/Chrome)
-            let rate = 0.55; // slower, extremely clear pronunciation
-            if (speedPref === 'slow') rate = 0.50; // slow pronunciation
-            if (speedPref === 'fast') rate = 1.0;  // normal/fast pronunciation
+            // Safe Web Speech Synthesis rates
+            let rate = 0.30; // slower, extremely clear pronunciation requested by the user
+            if (speedPref === 'slow') rate = 0.18; // slow pronunciation
+            if (speedPref === 'fast') rate = 0.55;  // fast pronunciation
             utterance.rate = rate;
 
             const voices = window.speechSynthesis.getVoices() || this.voices || [];
