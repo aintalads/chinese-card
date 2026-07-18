@@ -2906,10 +2906,15 @@ const backWordEl = document.getElementById('fc-back-word');
                 utterance.onerror = () => callback();
             }
 
-            // Safe Web Speech Synthesis rates
-            let rate = 0.30; // slower, extremely clear pronunciation requested by the user
-            if (speedPref === 'slow') rate = 0.18; // slow pronunciation
-            if (speedPref === 'fast') rate = 0.55;  // fast pronunciation
+            // Web Speech Synthesis rates based on user selection
+            let rate = 0.5; // default
+            if (['0.2', '0.3', '0.5', '0.7', '0.85', '1'].includes(speedPref)) {
+                rate = parseFloat(speedPref);
+            } else if (speedPref === 'slow') {
+                rate = 0.3;
+            } else if (speedPref === 'fast') {
+                rate = 0.7;
+            }
             utterance.rate = rate;
 
             const voices = window.speechSynthesis.getVoices() || this.voices || [];

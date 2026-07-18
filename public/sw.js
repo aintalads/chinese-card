@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mandarin-cache-v14';
+const CACHE_NAME = 'mandarin-cache-v16';
 
 const PRECACHE_URLS = [
   '/',

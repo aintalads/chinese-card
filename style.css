@@ -715,7 +715,7 @@ body {
 
 /* Make sure the main quiz text always uses the bright white/pure black */
 #qz-word {
-    color: var(--text-main) !important;
+    opacity: 1;
 }
 
 /* ==========================================
@@ -879,7 +879,7 @@ html, body {
     /* Instead of hardcoded #F0F7F7, this listens to whatever theme you clicked! */
     background: linear-gradient(135deg, var(--bg-color) 0%, var(--bg-grad-2) 100%) !important;
     background-color: var(--bg-color) !important;
-    color: var(--text-main) !important;
+    opacity: 1;
     min-height: 100vh !important;
     margin: 0 !important;
     padding: 0 !important;
@@ -1768,24 +1768,24 @@ body.midnight .modal-content.themed-modal {
     display: inline-block;
 }
 
-/* 🎨 CLEANER PILL-SHAPED CLOSE BUTTON */
+/* 🎨 CLEANER MINIMALIST CLOSE BUTTON */
 .modal-header .close-btn { 
     grid-column: 2 / 3; 
     justify-self: end; /* Pushes to the right edge */
-    background: rgba(128, 128, 128, 0.15) !important; 
+    background: transparent !important; 
     border: none !important; 
-    color: var(--text-main) !important; 
+    color: var(--text-muted) !important; 
     cursor: pointer; 
     width: 32px; height: 32px; 
-    border-radius: 50%;
     display: flex; justify-content: center; align-items: center;
     transition: all 0.2s ease;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    box-shadow: none !important;
 }
 
 .modal-header .close-btn:hover {
-    background: rgba(128, 128, 128, 0.25) !important;
-    transform: scale(1.05);
+    background: transparent !important;
+    color: var(--text-main) !important;
+    transform: scale(1.1);
 }
 
 .modal-body {
@@ -1831,7 +1831,7 @@ body.dark .accordion-arrow, body.midnight .accordion-arrow {
 
 .book-group.expanded .accordion-arrow {
     transform: rotate(0deg); /* Points down when open */
-    opacity: 1;
+    color: var(--text-main) !important;
 }
 
 /* ==========================================================================
@@ -3439,14 +3439,6 @@ body.midnight .search-result-en,
     color: var(--text-muted, #94a3b8) !important;
 }
 
-/* Close button styling inside occurrences popup */
-.modal-header .close-btn {
-    background: rgba(128, 128, 128, 0.2) !important;
-    color: var(--text-main) !important;
-}
-.modal-header .close-btn:hover {
-    background: rgba(128, 128, 128, 0.35) !important;
-}
 
 #global-search-input {
     font-family: 'Quicksand', 'TWKai', "LXGW WenKai TC", "LXGW WenKai", "KaiTi", sans-serif !important;
@@ -3523,23 +3515,23 @@ body.midnight .search-result-en,
 }
 
 .drawer-close-btn {
-    background: rgba(128, 128, 128, 0.1);
+    background: transparent;
     border: none;
-    font-size: 1.2rem;
-    color: var(--text-main);
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
+    color: var(--text-muted);
+    width: 32px;
+    height: 32px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.2s ease;
+    padding: 0;
 }
 
 .drawer-close-btn:hover {
-    background: rgba(128, 128, 128, 0.25);
-    transform: rotate(90deg);
+    background: transparent;
+    color: var(--text-main);
+    transform: scale(1.1);
 }
 
 .drawer-content {
@@ -3935,3 +3927,4 @@ body.dark-mode .menu-toggle-btn svg {
 .toggle-switch input:checked + .toggle-slider:before {
     transform: translateX(20px);
 }
+.close-btn svg, .drawer-close-btn svg { stroke: var(--text-main) !important; color: var(--text-main) !important; opacity: 1 !important; display: block !important; width: 18px !important; height: 18px !important; }
